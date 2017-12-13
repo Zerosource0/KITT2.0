@@ -6,24 +6,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using Dapper;
-using KITTBackend.Models.ImplementedModels;
-using KITTBackend.Services;
-using KITTBackend.Services.ImplementedServices;
+using KITT.Models.DatabaseModels;
 using Microsoft.AspNet.Identity;
 
-namespace KITTBackend.Identity
+namespace KITT.Identity
 {
-    public class CustomUserStore : IUserStore<UsersModel>, IUserLoginStore<UsersModel>, IUserPasswordStore<UsersModel>, IUserSecurityStampStore<UsersModel>
+    public class CustomUserStore : IUserStore<Users>, IUserLoginStore<Users>, IUserPasswordStore<Users>, IUserSecurityStampStore<Users>
     {
 
         private readonly string connectionString;
 
-        private UsersService usersService;
-
         public CustomUserStore()
         {
             this.connectionString = ConfigurationManager.ConnectionStrings["SqlConn"].ConnectionString;
-            usersService = new UsersService(new GenericService());
         }
         public void Dispose()
         {
@@ -32,24 +27,24 @@ namespace KITTBackend.Identity
 
         #region IUserStore
 
-        public Task CreateAsync(UsersModel user)
+        public Task CreateAsync(Users user)
         {
             if (user == null)
                 throw new ArgumentNullException("user");
 
             return Task.Factory.StartNew(() =>
             {
-                user.UsersID = Guid.NewGuid();
+                user.UsersId = Guid.NewGuid();
                 using (SqlConnection connection = new SqlConnection(connectionString))
                     connection.Execute(
-                        "insert into dbo.Users(UsersID, UserName, PasswordHash, SecurityStamp, FirstName, LastName) " +
-                        "values (@UsersID, @UserName, @PasswordHash, @SecurityStamp, @FirstName, @LastName)",
+                        "insert into dbo.Users(Id, UserName, PasswordHash, SecurityStamp, FirstName, LastName) " +
+                        "values (@Id, @UserName, @PasswordHash, @SecurityStamp, @FirstName, @LastName)",
                         user);
             });
 
         }
 
-        public Task DeleteAsync(UsersModel user)
+        public Task DeleteAsync(Users user)
         {
             if (user == null)
                 throw new ArgumentNullException("user");
@@ -57,13 +52,13 @@ namespace KITTBackend.Identity
             return Task.Factory.StartNew(() =>
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
-                    connection.Execute("delete from Users where UserId = @userId", new { user.UsersID });
+                    connection.Execute("delete from Users where UserId = @userId", new { user.Id });
             });
         }
 
 
 
-        public Task<UsersModel> FindByIdAsync(string userId)
+        public Task<Users> FindByIdAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 throw new ArgumentNullException("userId");
@@ -75,11 +70,11 @@ namespace KITTBackend.Identity
             return Task.Factory.StartNew(() =>
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
-                    return connection.Query<UsersModel>("select * from Users where UserId = @userId", new { userId = parsedUserId }).SingleOrDefault();
+                    return connection.Query<Users>("select * from Users where UserId = @userId", new { userId = parsedUserId }).SingleOrDefault();
             });
         }
 
-        public Task<UsersModel> FindByNameAsync(string userName)
+        public Task<Users> FindByNameAsync(string userName)
         {
             if (string.IsNullOrWhiteSpace(userName))
                 throw new ArgumentNullException("userName");
@@ -87,11 +82,11 @@ namespace KITTBackend.Identity
             return Task.Factory.StartNew(() =>
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
-                    return connection.Query<UsersModel>("select * from Users where lower(UserName) = lower(@userName)", new { userName }).SingleOrDefault();
+                    return connection.Query<Users>("select * from Users where lower(UserName) = lower(@userName)", new { userName }).SingleOrDefault();
             });
         }
 
-        public Task UpdateAsync(UsersModel user)
+        public Task UpdateAsync(Users user)
         {
             if (user == null)
                 throw new ArgumentNullException("user");
@@ -99,7 +94,7 @@ namespace KITTBackend.Identity
             return Task.Factory.StartNew(() =>
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
-                    connection.Execute("update Users set UserName = @userName, PasswordHash = @passwordHash, SecurityStamp = @securityStamp, FirstName = @FirstName, LastName = @LastName where UsersID = @UsersID", user);
+                    connection.Execute("update Users set UserName = @userName, PasswordHash = @passwordHash, SecurityStamp = @securityStamp, FirstName = @FirstName, LastName = @LastName where Id = @Id", user);
             });
         }
 
@@ -107,7 +102,7 @@ namespace KITTBackend.Identity
 
         #region IUserLoginStore
 
-        public virtual Task AddLoginAsync(UsersModel user, UserLoginInfo login)
+        public virtual Task AddLoginAsync(Users user, UserLoginInfo login)
         {
             if (user == null)
                 throw new ArgumentNullException("user");
@@ -118,12 +113,12 @@ namespace KITTBackend.Identity
             return Task.Factory.StartNew(() =>
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
-                    connection.Execute("insert into ExternalLogins(ExternalLoginId, UsersID, LoginProvider, ProviderKey) values(@externalLoginId, @userId, @loginProvider, @providerKey)",
-                        new { externalLoginId = Guid.NewGuid(), userId = user.UsersID, loginProvider = login.LoginProvider, providerKey = login.ProviderKey });
+                    connection.Execute("insert into ExternalLogins(ExternalLoginId, Id, LoginProvider, ProviderKey) values(@externalLoginId, @userId, @loginProvider, @providerKey)",
+                        new { externalLoginId = Guid.NewGuid(), userId = user.Id, loginProvider = login.LoginProvider, providerKey = login.ProviderKey });
             });
         }
 
-        public virtual Task<UsersModel> FindAsync(UserLoginInfo login)
+        public virtual Task<Users> FindAsync(UserLoginInfo login)
         {
             if (login == null)
                 throw new ArgumentNullException("login");
@@ -131,12 +126,12 @@ namespace KITTBackend.Identity
             return Task.Factory.StartNew(() =>
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
-                    return connection.Query<UsersModel>("select u.* from Users u inner join ExternalLogins l on l.UsersID = u.UsersID where l.LoginProvider = @loginProvider and l.ProviderKey = @providerKey",
+                    return connection.Query<Users>("select u.* from Users u inner join ExternalLogins l on l.Id = u.Id where l.LoginProvider = @loginProvider and l.ProviderKey = @providerKey",
                         login).SingleOrDefault();
             });
         }
 
-        public virtual Task<IList<UserLoginInfo>> GetLoginsAsync(UsersModel user)
+        public virtual Task<IList<UserLoginInfo>> GetLoginsAsync(Users user)
         {
             if (user == null)
                 throw new ArgumentNullException("user");
@@ -144,11 +139,11 @@ namespace KITTBackend.Identity
             return Task.Factory.StartNew(() =>
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
-                    return (IList<UserLoginInfo>)connection.Query<UserLoginInfo>("select LoginProvider, ProviderKey from ExternalLogins where UserId = @usersID", new { user.UsersID }).ToList();
+                    return (IList<UserLoginInfo>)connection.Query<UserLoginInfo>("select LoginProvider, ProviderKey from ExternalLogins where UserId = @Id", new { user.Id }).ToList();
             });
         }
 
-        public virtual Task RemoveLoginAsync(UsersModel user, UserLoginInfo login)
+        public virtual Task RemoveLoginAsync(Users user, UserLoginInfo login)
         {
             if (user == null)
                 throw new ArgumentNullException("user");
@@ -159,14 +154,14 @@ namespace KITTBackend.Identity
             return Task.Factory.StartNew(() =>
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
-                    connection.Execute("delete from ExternalLogins where UsersID = @usersID and LoginProvider = @loginProvider and ProviderKey = @providerKey",
-                        new { user.UsersID, login.LoginProvider, login.ProviderKey });
+                    connection.Execute("delete from ExternalLogins where Id = @Id and LoginProvider = @loginProvider and ProviderKey = @providerKey",
+                        new { user.Id, login.LoginProvider, login.ProviderKey });
             });
         }
         #endregion
 
         #region IUserPasswordStore
-        public virtual Task<string> GetPasswordHashAsync(UsersModel user)
+        public virtual Task<string> GetPasswordHashAsync(Users user)
         {
             if (user == null)
                 throw new ArgumentNullException("user");
@@ -174,12 +169,12 @@ namespace KITTBackend.Identity
             return Task.FromResult(user.PasswordHash);
         }
 
-        public virtual Task<bool> HasPasswordAsync(UsersModel user)
+        public virtual Task<bool> HasPasswordAsync(Users user)
         {
             return Task.FromResult(!string.IsNullOrEmpty(user.PasswordHash));
         }
 
-        public virtual Task SetPasswordHashAsync(UsersModel user, string passwordHash)
+        public virtual Task SetPasswordHashAsync(Users user, string passwordHash)
         {
             if (user == null)
                 throw new ArgumentNullException("user");
@@ -192,7 +187,7 @@ namespace KITTBackend.Identity
         #endregion
 
         #region IUserSecurityStampStore
-        public virtual Task<string> GetSecurityStampAsync(UsersModel user)
+        public virtual Task<string> GetSecurityStampAsync(Users user)
         {
             if (user == null)
                 throw new ArgumentNullException("user");
@@ -200,7 +195,7 @@ namespace KITTBackend.Identity
             return Task.FromResult(user.SecurityStamp);
         }
 
-        public virtual Task SetSecurityStampAsync(UsersModel user, string stamp)
+        public virtual Task SetSecurityStampAsync(Users user, string stamp)
         {
             if (user == null)
                 throw new ArgumentNullException("user");

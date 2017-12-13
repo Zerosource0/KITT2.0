@@ -57,5 +57,11 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\KITT.Models\KITT.Models.csproj">
+      <Project>{1421b38a-1336-4bb6-a569-1e1773a5592b}</Project>
+      <Name>KITT.Models</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

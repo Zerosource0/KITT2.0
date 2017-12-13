@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace KITTBackend.Identity
+namespace KITT.Identity
 {
     public enum PermissionsEnum
         {

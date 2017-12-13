@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace KITT.Models.DatabaseModels
 {
-    class UsersBrands
+    public class UsersBrands
     {
+        public string FkUsersId { get; set; }
+        public string FkBrandsId { get; set; }
     }
 }

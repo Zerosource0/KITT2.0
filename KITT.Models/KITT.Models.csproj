@@ -44,12 +44,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatabaseModels\Areas.cs" />
+    <Compile Include="DatabaseModels\Permissions.cs" />
     <Compile Include="DatabaseModels\Brands.cs" />
     <Compile Include="DatabaseModels\BaseClass\DatabaseModel.cs" />
+    <Compile Include="DatabaseModels\BrandsLocales.cs" />
     <Compile Include="DatabaseModels\Keys.cs" />
     <Compile Include="DatabaseModels\Locales.cs" />
     <Compile Include="DatabaseModels\Translations.cs" />
     <Compile Include="DatabaseModels\Users.cs" />
+    <Compile Include="DatabaseModels\UsersBrands.cs" />
+    <Compile Include="DatabaseModels\UsersLocalesModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

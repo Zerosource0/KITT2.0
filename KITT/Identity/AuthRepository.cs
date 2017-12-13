@@ -3,24 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
-using KITTBackend.HelperClasses;
-using KITTBackend.Models.ImplementedModels;
+using KITT.Identity;
 using Microsoft.AspNet.Identity;
+using KITT.Models.DatabaseModels;
+using KITTBackend.Identity;
 
-namespace KITTBackend.Identity
+namespace KITT.Identity
 {
     public class AuthRepository : IDisposable
     {
-        private static readonly log4net.ILog log = LogHelper.GetLogger();
-        private UserManager<UsersModel> _userManager;
+
+        private UserManager<Users> _userManager;
 
         public AuthRepository()
         {
-            _userManager = new UserManager<UsersModel>(new CustomUserStore());
-            _userManager.UserValidator = new UserValidator<UsersModel>(_userManager) {AllowOnlyAlphanumericUserNames = false};
+            _userManager = new UserManager<Users>(new CustomUserStore());
+            _userManager.UserValidator = new UserValidator<Users>(_userManager) {AllowOnlyAlphanumericUserNames = false};
         }
 
-        public async Task<IdentityResult> RegisterUser(UsersModel usersModel, string unhashedPassword)
+        public async Task<IdentityResult> RegisterUser(Users usersModel, string unhashedPassword)
         {
             //log.Debug("AuthRepository.RegisterUser: " + usersModel.UserName + " " + unhashedPassword);
             var result = await _userManager.CreateAsync(usersModel, unhashedPassword);
@@ -28,11 +29,11 @@ namespace KITTBackend.Identity
             return result;
         }
 
-        public async Task<UsersModel> FindUser(string userName, string password)
+        public async Task<Users> FindUser(string userName, string password)
         {
 
             //log.Debug("AuthRepository.Find: " + userName + " " + password);
-            UsersModel user = await _userManager.FindAsync(userName, password);
+            Users user = await _userManager.FindAsync(userName, password);
 
             return user;
         }

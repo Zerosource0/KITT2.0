@@ -7,21 +7,19 @@ using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using KITTBackend.HelperClasses;
-using KITTBackend.Models.ImplementedModels;
-using KITTBackend.Services;
-using KITTBackend.Services.ImplementedServices;
+using KITT.Identity;
+using KITT.Models.DatabaseModels;
+using KITTBackend.Identity;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.OAuth;
 
-namespace KITTBackend.Identity
+namespace KITT.Identity
 {
     public class AuthorizationServerProvider : OAuthAuthorizationServerProvider
     {
-        private static readonly log4net.ILog log = LogHelper.GetLogger();
         private AppPermissionsService _appPermissionsService;
 
         public override async Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
@@ -31,10 +29,10 @@ namespace KITTBackend.Identity
 
         public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
-            log.Info("GrantResourceOwnerCredentials - Context: " + context.ClientId + ", " + context.UserName);
+            //log.Info("GrantResourceOwnerCredentials - Context: " + context.ClientId + ", " + context.UserName);
             //context.OwinContext.Response.Headers.Add("Access-Control-Allow-Origin", new[] { "*" });
 
-            UsersModel user = null;
+            Users user = null;
 
             using (AuthRepository _repo = new AuthRepository())
             {
@@ -50,16 +48,16 @@ namespace KITTBackend.Identity
             
             _appPermissionsService = new AppPermissionsService(new GenericService());
 
-            List<AppPermissionsModel> appPermissionsModels = await _appPermissionsService.GetAppPermissionsByUsers(user.UsersID);
+            List<Permissions> appPermissionsModels = await _appPermissionsService.GetAppPermissionsByUsers(user.UsersId);
             UsersPermissionsCache cache = new UsersPermissionsCache();
-            cache.Add(user.UsersID.ToString(), appPermissionsModels, DateTimeOffset.UtcNow.AddHours(1));
+            cache.Add(user.UsersId.ToString(), appPermissionsModels, DateTimeOffset.UtcNow.AddHours(1));
             
 
             var identity = new ClaimsIdentity(context.Options.AuthenticationType);
             identity.AddClaim(new Claim("sub", context.UserName));
             identity.AddClaim(new Claim(ClaimTypes.Name, context.UserName));
             identity.AddClaim(new Claim(ClaimTypes.Role, "Admin"));
-            identity.AddClaim(new Claim("usersID", user.UsersID.ToString()));
+            identity.AddClaim(new Claim("usersId", user.UsersId.ToString()));
 
             context.Validated(identity);
 
