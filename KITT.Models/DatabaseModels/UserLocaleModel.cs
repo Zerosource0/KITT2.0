@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace KITT.Models.DatabaseModels
 {
-    public class UsersBrands
+    public class UserLocales
     {
-        public string FkUsersId { get; set; }
-        public string FkBrandsId { get; set; }
+        public int UserLocaleId { get; set; }
+        public int FkUserId { get; set; }
+        public int FkLocaleId { get; set; }
     }
 }

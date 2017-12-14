@@ -19,7 +19,7 @@ namespace KITT
 
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.FullName.StartsWith("KITT")).ToArray();
             //register all types implementing an interface.
-
+            var test = "";
             //builder.RegisterAssemblyTypes(assemblies)
             //    .Where(t => t.Name.EndsWith("Service"))
             //    .AsImplementedInterfaces()

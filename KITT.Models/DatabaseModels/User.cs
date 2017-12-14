@@ -7,9 +7,9 @@ using Microsoft.AspNet.Identity;
 
 namespace KITT.Models.DatabaseModels
 {
-    public class Users : IUser
+    public class User : IUser
     {
-        public Guid UsersId { get; set; }
+        public Guid UserId { get; set; }
         public string UserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -18,7 +18,7 @@ namespace KITT.Models.DatabaseModels
 
         public string Id
         {
-            get { return UsersId.ToString(); }
+            get { return UserId.ToString(); }
         }
     }
 }

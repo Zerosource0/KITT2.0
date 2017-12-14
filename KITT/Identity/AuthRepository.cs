@@ -13,15 +13,15 @@ namespace KITT.Identity
     public class AuthRepository : IDisposable
     {
 
-        private UserManager<Users> _userManager;
+        private UserManager<User> _userManager;
 
         public AuthRepository()
         {
-            _userManager = new UserManager<Users>(new CustomUserStore());
-            _userManager.UserValidator = new UserValidator<Users>(_userManager) {AllowOnlyAlphanumericUserNames = false};
+            _userManager = new UserManager<User>(new CustomUserStore());
+            _userManager.UserValidator = new UserValidator<User>(_userManager) {AllowOnlyAlphanumericUserNames = false};
         }
 
-        public async Task<IdentityResult> RegisterUser(Users usersModel, string unhashedPassword)
+        public async Task<IdentityResult> RegisterUser(User usersModel, string unhashedPassword)
         {
             //log.Debug("AuthRepository.RegisterUser: " + usersModel.UserName + " " + unhashedPassword);
             var result = await _userManager.CreateAsync(usersModel, unhashedPassword);
@@ -29,11 +29,11 @@ namespace KITT.Identity
             return result;
         }
 
-        public async Task<Users> FindUser(string userName, string password)
+        public async Task<User> FindUser(string userName, string password)
         {
 
             //log.Debug("AuthRepository.Find: " + userName + " " + password);
-            Users user = await _userManager.FindAsync(userName, password);
+            User user = await _userManager.FindAsync(userName, password);
 
             return user;
         }

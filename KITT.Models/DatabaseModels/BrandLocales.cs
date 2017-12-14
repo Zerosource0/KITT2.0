@@ -7,10 +7,10 @@ using KITT.Models.DatabaseModels.BaseClass;
 
 namespace KITT.Models.DatabaseModels
 {
-    class Keys : DatabaseModel
+    public class BrandLocale : DatabaseModel
     {
-        public string KeysName { get; set; }
-        public Guid FkBrandsId { get; set; }
-        public Guid FkAreasId { get; set; } 
+        public int BrandLocaleId { get; set; }
+        public int FkBrandId { get; set; }
+        public int FkLocaleId { get; set; }
     }
 }

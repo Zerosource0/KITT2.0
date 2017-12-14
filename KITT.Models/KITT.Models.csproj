@@ -43,17 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DatabaseModels\Areas.cs" />
-    <Compile Include="DatabaseModels\Permissions.cs" />
-    <Compile Include="DatabaseModels\Brands.cs" />
+    <Compile Include="DatabaseModels\Area.cs" />
+    <Compile Include="DatabaseModels\Permission.cs" />
+    <Compile Include="DatabaseModels\Brand.cs" />
     <Compile Include="DatabaseModels\BaseClass\DatabaseModel.cs" />
-    <Compile Include="DatabaseModels\BrandsLocales.cs" />
-    <Compile Include="DatabaseModels\Keys.cs" />
-    <Compile Include="DatabaseModels\Locales.cs" />
-    <Compile Include="DatabaseModels\Translations.cs" />
-    <Compile Include="DatabaseModels\Users.cs" />
-    <Compile Include="DatabaseModels\UsersBrands.cs" />
-    <Compile Include="DatabaseModels\UsersLocalesModel.cs" />
+    <Compile Include="DatabaseModels\BrandLocales.cs" />
+    <Compile Include="DatabaseModels\Key.cs" />
+    <Compile Include="DatabaseModels\Locale.cs" />
+    <Compile Include="DatabaseModels\Translation.cs" />
+    <Compile Include="DatabaseModels\User.cs" />
+    <Compile Include="DatabaseModels\UserBrand.cs" />
+    <Compile Include="DatabaseModels\UserLocaleModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

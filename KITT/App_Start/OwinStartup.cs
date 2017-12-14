@@ -1,8 +1,12 @@
 ﻿using System;
+using KITT.Facade.Initialization;
+using KITT.Identity;
+using KITT.Models.DatabaseModels.BaseClass;
 using KITTBackend.Identity;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.OAuth;
 using Owin;
+using Serilog;
 
 [assembly: OwinStartup(typeof(KITT.OwinStartup))]
 namespace KITT
@@ -10,15 +14,28 @@ namespace KITT
     public class OwinStartup
     {
 
-        public void Configuration(IAppBuilder app)
+        public static void Configuration(IAppBuilder app)
         {
+            Log.Logger = new LoggerConfiguration()
+            .ReadFrom.AppSettings()
+            .CreateLogger();
+
+            Log.Logger.Information("Initialized Log");
+
             app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
 
             IocConfig.Configure(app);
 
-            ConfigureOAuth(app);
+            ConfigureDatabaseSchema();
+            
+            //ConfigureOAuth(app);
 
+        }
 
+        public static void ConfigureDatabaseSchema()
+        {
+            DatabaseSchemaHandler schemaHandler = new DatabaseSchemaHandler();
+            schemaHandler.VerifySchema(typeof(DatabaseModel));
         }
 
         public void ConfigureOAuth(IAppBuilder app)
@@ -38,4 +55,4 @@ namespace KITT
 
         }
     }
-    }
+}

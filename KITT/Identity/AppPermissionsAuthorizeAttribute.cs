@@ -42,13 +42,13 @@ namespace KITT.Identity
             var claim = principal.Claims.Last();
             UsersPermissionsCache cache = new UsersPermissionsCache();
 
-            List<Permissions> permissions = (List<Permissions>)cache.GetValue(claim.ToString().Split(' ').Last());
+            List<Permission> permissions = (List<Permission>)cache.GetValue(claim.ToString().Split(' ').Last());
             if (permissions == null)
             {
                 filterContext.Result = new HttpUnauthorizedResult();
             }
 
-            var dictionary = permissions.ToDictionary(x => x.Id, y => y.PermissionsName);
+            var dictionary = permissions.ToDictionary(x => x.Id, y => y.PermissionName);
 
             if (!dictionary.ContainsValue(PermissionsName.ToString()))
             {

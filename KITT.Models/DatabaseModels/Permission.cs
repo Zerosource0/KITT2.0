@@ -2,8 +2,8 @@
 
 namespace KITT.Models.DatabaseModels
 {
-    public class Permissions : DatabaseModel
+    public class Permission : DatabaseModel
     {
-        public string PermissionsName { get; set; }
+        public string PermissionName { get; set; }
     }
 }

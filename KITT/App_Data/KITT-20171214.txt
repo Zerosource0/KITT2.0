@@ -1,0 +1,30 @@
+2017-12-14 21:20:54.915 +01:00 [Information] Initialized Log
+2017-12-14 21:20:54.960 +01:00 [Debug] Verifying Schema using interface: DatabaseModel
+2017-12-14 21:20:55.132 +01:00 [Debug] Number of classes implementing DatabaseModel: 6, Missing types from database: 6
+2017-12-14 21:25:36.004 +01:00 [Information] Initialized Log
+2017-12-14 21:25:36.048 +01:00 [Debug] Verifying Schema using interface: DatabaseModel
+2017-12-14 21:25:36.223 +01:00 [Debug] Number of classes implementing DatabaseModel: 6, Missing types from database: 6
+2017-12-14 21:25:58.178 +01:00 [Information] Initialized Log
+2017-12-14 21:25:58.227 +01:00 [Debug] Verifying Schema using interface: DatabaseModel
+2017-12-14 21:28:15.830 +01:00 [Information] Initialized Log
+2017-12-14 21:28:15.872 +01:00 [Debug] Verifying Schema using interface: DatabaseModel
+2017-12-14 21:29:07.158 +01:00 [Information] Initialized Log
+2017-12-14 21:29:07.198 +01:00 [Debug] Verifying Schema using interface: DatabaseModel
+2017-12-14 21:29:41.195 +01:00 [Information] Initialized Log
+2017-12-14 21:29:41.238 +01:00 [Debug] Verifying Schema using interface: DatabaseModel
+2017-12-14 21:29:45.008 +01:00 [Debug] Number of classes implementing DatabaseModel: 6, Missing types from database: 6
+2017-12-14 21:30:39.797 +01:00 [Information] Initialized Log
+2017-12-14 21:30:39.845 +01:00 [Debug] Verifying Schema using interface: DatabaseModel
+2017-12-14 21:32:47.823 +01:00 [Information] Initialized Log
+2017-12-14 21:32:47.866 +01:00 [Debug] Verifying Schema using interface: DatabaseModel
+2017-12-14 21:37:19.164 +01:00 [Information] Initialized Log
+2017-12-14 21:37:19.207 +01:00 [Debug] Verifying Schema using interface: DatabaseModel
+2017-12-14 21:39:09.035 +01:00 [Information] Initialized Log
+2017-12-14 21:39:09.075 +01:00 [Debug] Verifying Schema using interface: DatabaseModel
+2017-12-14 21:39:41.794 +01:00 [Debug] <LocaleName>k__BackingField
+2017-12-14 21:39:58.875 +01:00 [Debug] Number of classes implementing DatabaseModel: 6, Missing types from database: 6
+2017-12-14 21:40:42.431 +01:00 [Information] Initialized Log
+2017-12-14 21:40:42.472 +01:00 [Debug] Verifying Schema using interface: DatabaseModel
+2017-12-14 21:40:42.634 +01:00 [Debug] <BrandName>k__BackingField
+2017-12-14 21:40:42.635 +01:00 [Debug] <LocaleName>k__BackingField
+2017-12-14 21:40:42.637 +01:00 [Debug] Number of classes implementing DatabaseModel: 6, Missing types from database: 6
