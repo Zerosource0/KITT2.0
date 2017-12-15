@@ -37,12 +37,12 @@ namespace KITT.Facade.Initialization
 
                 if (!tables.Any())
                 {
-                    CreateSchema(@interface, null);
+                    //CreateSchema(@interface, null);
                     return;
                 }
 
                 var missingOrWrongTables = AnalyzeTables(@interface, out var numberOfTypes);
-                Log.Logger.Debug("Number of classes implementing "+ @interface.Name + ": "+ numberOfTypes +", Missing types from database: " + missingOrWrongTables.Count);
+                Log.Logger.Debug("Number of classes implementing " + @interface.Name + ": " + numberOfTypes + ", Missing types from database: " + missingOrWrongTables.Count);
 
                 if (!missingOrWrongTables.Any()) return;
 
@@ -55,7 +55,7 @@ namespace KITT.Facade.Initialization
 
         private List<Type> AnalyzeTables(Type type, out int numberOfTypes)
         {
-            
+
             IEnumerable<Type> types = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes())
                 .Where(p => type.IsAssignableFrom(p) && p != type);
@@ -99,14 +99,9 @@ namespace KITT.Facade.Initialization
 
             //Compare names
             IEnumerable<string> columNames = columns.Select(x => ConvertIdName(x.COLUMN_NAME));
-            IEnumerable<string> fieldNames = t.GetFields(bindingFlags).Select(x => x.Name);
+            IEnumerable<string> propertyNames = t.GetProperties(bindingFlags).Select(x => x.Name);
 
-            foreach (FieldInfo field in t.GetFields(bindingFlags))
-            {
-                Log.Logger.Debug(field.Name);
-            }
-
-            IEnumerable<string> differences = fieldNames.Except(columNames).Union(columNames.Except(fieldNames)).ToList();
+            IEnumerable<string> differences = propertyNames.Except(columNames).Union(columNames.Except(propertyNames)).ToList();
             //Return type is any differences
             if (differences.Any())
             {
@@ -114,11 +109,11 @@ namespace KITT.Facade.Initialization
             }
 
             //Compare types
-            IEnumerable<Type> columnTypes = columns.Select(x => ConvertToStandardType(x.DATA_TYPE));
-            Dictionary<string, Type> fieldTypes = t.GetFields(bindingFlags).ToDictionary(x => x.Name, y => y.MemberType.GetType());
+            IEnumerable<Type> columnTypes = columns.Select(x => ConvertToStandardType(x.DATA_TYPE)); //turn this into a dictionary.
+            Dictionary<string, Type> propertyTypes = t.GetProperties(bindingFlags).ToDictionary(x => x.Name, y => y.PropertyType);
 
-            IEnumerable<Type> typeDifferences = fieldTypes.Select(x => x.Value).Except(columnTypes).Union(columnTypes.Except(fieldTypes.Select(x => x.Value)));
-            differences = fieldTypes.Where(x => typeDifferences.Contains(x.Value)).Select(x => x.Key);
+            IEnumerable<Type> typeDifferences = propertyTypes.Select(x => x.Value).Except(columnTypes).Union(columnTypes.Except(propertyTypes.Select(x => x.Value)));
+            differences = propertyTypes.Where(x => typeDifferences.Contains(x.Value)).Select(x => x.Key);
             //Return type is any differences
             if (differences.Any())
             {
