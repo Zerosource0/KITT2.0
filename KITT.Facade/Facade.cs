@@ -7,7 +7,7 @@ using KITT.Facade.Interfaces;
 
 namespace KITT.Facade
 {
-    class Facade : IFacade
+    public class Facade : IFacade
     {
         public List<T> DataTableQuery<T>(T returnType, DatabaseOperationEnum operation)
         {

@@ -4,6 +4,8 @@ using System.Reflection;
 using System.Web.Mvc;
 using Autofac;
 using Autofac.Integration.Mvc;
+using KITT.Facade.Initialization;
+using KITT.Facade.Interfaces;
 using Owin;
 
 namespace KITT
@@ -19,7 +21,10 @@ namespace KITT
 
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.FullName.StartsWith("KITT")).ToArray();
             //register all types implementing an interface.
-            var test = "";
+
+            builder.RegisterType<DatabaseSchemaHandler>().As<IDatabaseSchemaHandler>();
+            builder.RegisterType<Facade.Facade>().As<IFacade>();
+
             //builder.RegisterAssemblyTypes(assemblies)
             //    .Where(t => t.Name.EndsWith("Service"))
             //    .AsImplementedInterfaces()

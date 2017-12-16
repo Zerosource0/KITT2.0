@@ -17,6 +17,7 @@ namespace KITT.Facade.Initialization
     {
         private readonly string _connectionString = ConfigurationManager.ConnectionStrings["KITTDB"].ConnectionString;
         private IDbConnection _connection = null;
+        private BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic;
 
         //TODO: Handle tables that exist, but are incorrect.
 
@@ -26,9 +27,9 @@ namespace KITT.Facade.Initialization
         /// <typeparam name="T"></typeparam>
         /// <param name="interface">The interface</param>
         /// <returns>void</returns>
-        public void VerifySchema(Type @interface)
+        public void CompareAndVerifyTablesInDatabase(Type @interface)
         {
-            Log.Logger.Debug("Verifying Schema using interface: " + @interface.Name);
+            
             string query = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'";
 
             using (_connection = new SqlConnection(_connectionString))
@@ -37,50 +38,57 @@ namespace KITT.Facade.Initialization
 
                 if (!tables.Any())
                 {
-                    //CreateSchema(@interface, null);
+                    Log.Logger.Debug("The database is empty.");
+                    CreateOrModifyTablesInDatabase(@interface, null);
                     return;
                 }
 
-                var missingOrWrongTables = AnalyzeTables(@interface, out var numberOfTypes);
-                Log.Logger.Debug("Number of classes implementing " + @interface.Name + ": " + numberOfTypes + ", Missing types from database: " + missingOrWrongTables.Count);
+                var deviantTables = AnalyzeTables(@interface, out var numberOfTypes);
 
-                if (!missingOrWrongTables.Any()) return;
+                if (deviantTables.Any(x => !x.TableExistsInDb))
+                {
+                    Log.Logger.Debug("Tables in database match all classes implementing " + @interface.Name);
+                    return;
+                }
 
-                //CreateSchema(@interface, missingOrWrongTables.Count == numberOfTypes ? null : missingOrWrongTables);
-                return;
+                Log.Logger.Debug("Tables in database deviates from classes implementing " + @interface.Name);
+                Log.Logger.Debug("Number of classes implementing " + @interface.Name + ": " + numberOfTypes + ", Deviant types from database: " + deviantTables.Count);
+
+                CreateOrModifyTablesInDatabase(@interface, deviantTables);
             }
-
-            return;
         }
 
-        private List<Type> AnalyzeTables(Type type, out int numberOfTypes)
+        private List<DeviantTable> AnalyzeTables(Type type, out int numberOfTypes)
         {
+            Log.Logger.Debug("Comparing table in database using baseclass: " + type.Name);
 
             IEnumerable<Type> types = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes())
                 .Where(p => type.IsAssignableFrom(p) && p != type);
             numberOfTypes = types.Count();
 
-            List<Type> missingTablesTypes = new List<Type>();
-
+            List<DeviantTable> deviantTables = new List<DeviantTable>();
+            Log.Logger.Debug("----------------------------------------------------");
             foreach (Type t in types)
             {
-                var memberType = CompareTableToObject(t);
-                if (memberType != null)
+                var deviants = CompareTableToObject(t);
+                if (deviants != null)
                 {
-                    missingTablesTypes.Add(memberType);
+                    deviantTables.Add(deviants);
                 }
+                Log.Logger.Debug("----------------------------------------------------");
             }
-            return missingTablesTypes;
+            Log.Logger.Debug("Done comparing table with types extending "+ type.Name);
+            return deviantTables;
         }
 
 
         /// <summary>
         /// Compares name and members of type t to table with corresponding name in database.
         /// </summary>
-        /// <param name="t">The Type.</param>
-        /// <returns>If they are equals, returns null; if not the type is returned.</returns>
-        private Type CompareTableToObject(Type t)
+        /// <param name="t">The t.</param>
+        /// <returns>Returns a DeviantTalbe that represents whats missing in the db, and if the table exists</returns>
+        private DeviantTable CompareTableToObject(Type t)
         {
             string query =
                 "SELECT TABLE_CATALOG, TABLE_NAME, COLUMN_NAME, DATA_TYPE, ORDINAL_POSITION " +
@@ -92,34 +100,54 @@ namespace KITT.Facade.Initialization
             //check if database had such table
             if (!columns.Any())
             {
-                return t;
+                Log.Logger.Debug("The database does not contain table with name " + t.Name);
+                return MissingTable(t);
             }
 
-            var bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic;
-
-            //Compare names
-            IEnumerable<string> columNames = columns.Select(x => ConvertIdName(x.COLUMN_NAME));
-            IEnumerable<string> propertyNames = t.GetProperties(bindingFlags).Select(x => x.Name);
-
-            IEnumerable<string> differences = propertyNames.Except(columNames).Union(columNames.Except(propertyNames)).ToList();
-            //Return type is any differences
-            if (differences.Any())
+            Log.Logger.Debug("Comparing type " + t.Name + " to database equivalent");
+            Dictionary<string, Type> properties = t.GetProperties(bindingFlags).ToDictionary(x => x.Name, y => y.PropertyType);
+            
+            IDictionary<string, Type> deviantColumns = new Dictionary<string, Type>();
+            IDictionary<string, bool> deviantExistingColums = new Dictionary<string, bool>();
+            foreach (var property in properties)
             {
-                return t;
+
+                var column = columns.FirstOrDefault(x => ConvertIdName(x.COLUMN_NAME).Equals(property.Key));
+                if (column != null)
+                {
+                    if (ConvertToStandardType(column.DATA_TYPE) == property.Value)
+                    {
+                        Log.Logger.Debug("Table " + t.Name + " has column " + ConvertIdName(column.COLUMN_NAME) + ", with correct type: " + ConvertToStandardType(column.DATA_TYPE));
+                    }
+                    else
+                    {
+                        Log.Logger.Debug("Table " + t.Name + " has column " + ConvertIdName(column.COLUMN_NAME) + ", with wrong type: " + ConvertToStandardType(column.DATA_TYPE) + " should be " + property.Value);
+                        deviantColumns.Add(property);
+                        deviantExistingColums.Add(property.Key, true);
+                        }
+                }
+                else
+                {
+                    Log.Logger.Debug("Table " + t.Name + " is missing column " + property.Key);
+                    deviantColumns.Add(property);
+                }
+
             }
 
-            //Compare types
-            IEnumerable<Type> columnTypes = columns.Select(x => ConvertToStandardType(x.DATA_TYPE)); //turn this into a dictionary.
-            Dictionary<string, Type> propertyTypes = t.GetProperties(bindingFlags).ToDictionary(x => x.Name, y => y.PropertyType);
-
-            IEnumerable<Type> typeDifferences = propertyTypes.Select(x => x.Value).Except(columnTypes).Union(columnTypes.Except(propertyTypes.Select(x => x.Value)));
-            differences = propertyTypes.Where(x => typeDifferences.Contains(x.Value)).Select(x => x.Key);
-            //Return type is any differences
-            if (differences.Any())
+            if (!deviantExistingColums.Any() && !deviantColumns.Any())
             {
-                return t;
+                Log.Logger.Debug("Table " + t.Name + " is a match");
+                return null;
             }
-            return null;
+
+            var deviant = new DeviantTable
+            {
+                TableExistsInDb = true,
+                DeviantColumns = deviantColumns,
+                ExistingColums = deviantExistingColums,
+                Name = t.Name
+            };
+            return deviant;
         }
 
         private string ConvertIdName(string name)
@@ -147,9 +175,24 @@ namespace KITT.Facade.Initialization
 
         }
 
-        public void CreateSchema(Type type, List<Type> tables)
+        private DeviantTable MissingTable(Type t)
         {
-            throw new NotImplementedException();
+            Dictionary<string, Type> propertyTypes = t.GetProperties(bindingFlags).ToDictionary(x => x.Name, y => y.PropertyType);
+            var table = new DeviantTable
+            {
+                Name = t.Name,
+                DeviantColumns = propertyTypes,
+                TableExistsInDb = false
+            };
+            return table;
         }
+
+
+        public void CreateOrModifyTablesInDatabase(Type type, List<DeviantTable> tables)
+        {
+            return;
+            //throw new NotImplementedException();
+        }
+
     }
 }
