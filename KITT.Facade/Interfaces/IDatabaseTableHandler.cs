@@ -7,7 +7,7 @@ using KITT.Facade.Initialization;
 
 namespace KITT.Facade.Interfaces
 {
-    public interface IDatabaseSchemaHandler
+    public interface IDatabaseTableHandler
     {
         void CompareAndVerifyTablesInDatabase(Type @interface);
         void CreateOrModifyTablesInDatabase(Type type, List<DeviantTable> tables);

@@ -66,12 +66,12 @@
     <Compile Include="DatabaseColumn.cs" />
     <Compile Include="DatabaseTable.cs" />
     <Compile Include="Facade.cs" />
-    <Compile Include="Initialization\DatabaseSchemaHandler.cs" />
+    <Compile Include="Initialization\DatabaseTableHandler.cs" />
     <Compile Include="Initialization\DeviantTable.cs" />
     <Compile Include="Initialization\Initialization.cs" />
-    <Compile Include="Interfaces\IDatabaseSchemaHandler.cs" />
+    <Compile Include="SqlTranslator.cs" />
+    <Compile Include="Interfaces\IDatabaseTableHandler.cs" />
     <Compile Include="Interfaces\IFacade.cs" />
-    <Compile Include="Interfaces\ITableCreator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

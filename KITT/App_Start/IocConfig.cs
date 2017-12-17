@@ -22,7 +22,7 @@ namespace KITT
             var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.FullName.StartsWith("KITT")).ToArray();
             //register all types implementing an interface.
 
-            builder.RegisterType<DatabaseSchemaHandler>().As<IDatabaseSchemaHandler>();
+            builder.RegisterType<DatabaseTableHandler>().As<IDatabaseTableHandler>();
             builder.RegisterType<Facade.Facade>().As<IFacade>();
 
             //builder.RegisterAssemblyTypes(assemblies)

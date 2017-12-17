@@ -13,7 +13,7 @@ using Serilog;
 
 namespace KITT.Facade.Initialization
 {
-    public class DatabaseSchemaHandler : IDatabaseSchemaHandler
+    public class DatabaseTableHandler : IDatabaseTableHandler
     {
         private readonly string _connectionString = ConfigurationManager.ConnectionStrings["KITTDB"].ConnectionString;
         private IDbConnection _connection = null;
@@ -29,7 +29,7 @@ namespace KITT.Facade.Initialization
         /// <returns>void</returns>
         public void CompareAndVerifyTablesInDatabase(Type @interface)
         {
-            
+
             string query = "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'";
 
             using (_connection = new SqlConnection(_connectionString))
@@ -45,7 +45,7 @@ namespace KITT.Facade.Initialization
 
                 var deviantTables = AnalyzeTables(@interface, out var numberOfTypes);
 
-                if (deviantTables.Any(x => !x.TableExistsInDb))
+                if (deviantTables.All(x => x.TableExistsInDb))
                 {
                     Log.Logger.Debug("Tables in database match all classes implementing " + @interface.Name);
                     return;
@@ -78,7 +78,7 @@ namespace KITT.Facade.Initialization
                 }
                 Log.Logger.Debug("----------------------------------------------------");
             }
-            Log.Logger.Debug("Done comparing table with types extending "+ type.Name);
+            Log.Logger.Debug("Done comparing table with types extending " + type.Name);
             return deviantTables;
         }
 
@@ -106,7 +106,7 @@ namespace KITT.Facade.Initialization
 
             Log.Logger.Debug("Comparing type " + t.Name + " to database equivalent");
             Dictionary<string, Type> properties = t.GetProperties(bindingFlags).ToDictionary(x => x.Name, y => y.PropertyType);
-            
+
             IDictionary<string, Type> deviantColumns = new Dictionary<string, Type>();
             IDictionary<string, bool> deviantExistingColums = new Dictionary<string, bool>();
             foreach (var property in properties)
@@ -124,7 +124,7 @@ namespace KITT.Facade.Initialization
                         Log.Logger.Debug("Table " + t.Name + " has column " + ConvertIdName(column.COLUMN_NAME) + ", with wrong type: " + ConvertToStandardType(column.DATA_TYPE) + " should be " + property.Value);
                         deviantColumns.Add(property);
                         deviantExistingColums.Add(property.Key, true);
-                        }
+                    }
                 }
                 else
                 {
@@ -134,10 +134,11 @@ namespace KITT.Facade.Initialization
 
             }
 
+            //After this loop, we know that all the all the colums are set to be created - but what about the columns that doesn't match the classes?
+
             if (!deviantExistingColums.Any() && !deviantColumns.Any())
             {
                 Log.Logger.Debug("Table " + t.Name + " is a match");
-                return null;
             }
 
             var deviant = new DeviantTable
@@ -190,6 +191,9 @@ namespace KITT.Facade.Initialization
 
         public void CreateOrModifyTablesInDatabase(Type type, List<DeviantTable> tables)
         {
+
+            var hello = "";
+
             return;
             //throw new NotImplementedException();
         }

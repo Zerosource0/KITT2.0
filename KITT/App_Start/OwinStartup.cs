@@ -34,8 +34,8 @@ namespace KITT
 
         public static void ConfigureDatabaseSchema()
         {
-            DatabaseSchemaHandler schemaHandler = new DatabaseSchemaHandler();
-            schemaHandler.CompareAndVerifyTablesInDatabase(typeof(DatabaseModel));
+            DatabaseTableHandler tableHandler = new DatabaseTableHandler();
+            tableHandler.CompareAndVerifyTablesInDatabase(typeof(DatabaseModel));
         }
 
         public void ConfigureOAuth(IAppBuilder app)
